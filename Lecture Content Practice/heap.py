@@ -19,6 +19,7 @@ class MaxHeap:
         - increase_priority(index: int, new_value: int) -> None: Increases the value at a given index.
         - max() -> int: Returns the maximum element without removing it.
     """
+    heap: list
 
     def __init__(self):
         """
