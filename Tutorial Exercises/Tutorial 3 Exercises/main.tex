@@ -53,18 +53,29 @@
 Suppose we want to use a Binary Search Tree to store only keys (without any additional information), and we want to allow duplicate keys. Modify the TreeInsert algorithm to handle duplicate keys. Provide the updated algorithm and explain the changes.
 
 \vspace{1em} % Space for typing explanation
-\textbf{Changes made:} \underline{Add your explanation here.}
+\textbf{Changes made:} \underline{Make the first key comparison between that of \texttt{x} and \texttt{root} to be unstrict.}
 
 \begin{lstlisting}[language=Python, caption={Modified TreeInsert Algorithm}]
 def TreeInsert(root, key):
-    if root is None:
-        return Node(key)
-    if key <= root.key:
+    if root == None:
+        root = x
+    elif x.key <= root.key:
         root.left = TreeInsert(root.left, key)
-    else:
+    elif x.key > root.key:
         root.right = TreeInsert(root.right, key)
-    return root
+    else:  # x.key == root.key
+        replace root with x
+    return root  # update x.left, x.right
 \end{lstlisting}
+\textbf{Runtime Analysis:} \\
+The worst case runtime occurs when the \texttt{elif} branch is always reached in each recursive call. \\
+\\
+This causes the insertion behaviour to continually add to the leftmost branch of the tree, with an increasing size each time a duplicate key is inserted. \\
+\\
+This results in a worst case runtime of:
+\[
+    O(\sum_{i=1}^{n} i) = O(n^2) \text{.}
+\]
 
 \pagebreak
 
@@ -72,7 +83,7 @@ def TreeInsert(root, key):
 Describe the strategy to ensure duplicate keys are not always inserted on the same side. Use a boolean flag \texttt{goLeft} in each node and explain the changes.
 
 \vspace{1em} % Space for typing explanation
-\textbf{Changes made:} \underline{Add your explanation here.}
+\textbf{Changes made:} \underline{Return a node with default boolean flag \texttt{goLeft} set to \texttt{True}.} Check if the key is equal to the root's key and toggle the \texttt{goLeft} flag. If the flag is \texttt{True}, insert the duplicate key on the left side; otherwise, insert it on the right side.
 
 \begin{lstlisting}[language=Python, caption={Modified TreeInsert with goLeft Flag}]
 def TreeInsert(root, key):
@@ -86,18 +97,36 @@ def TreeInsert(root, key):
         root.goLeft = not root.goLeft
     elif key < root.key:
         root.left = TreeInsert(root.left, key)
-    else:
+    else key > root.key:
         root.right = TreeInsert(root.right, key)
+    else:  # x.key == root.key
+        replace root with x
     return root
 \end{lstlisting}
-
+\textbf{Runtime Analysis:} \\
+The worst case runtime occurs when the key is always equal to the root's key. \\
+\\
+This causes the insertion behaviour to continually swap between the left and right branches of the tree, with an increasing size each time a duplicate key is inserted. \\
+\\
+The pattern of insertion is as follows:
+\begin{itemize}
+    \item Root, Left, Right, Left, Right, Left, Right, ...
+\end{itemize}
+The height of this tree is denoted by \( log(n) \), and insertion of each duplicate key will take \( O(log(n)) \) time. \\
+\\
+Alongside, \( n \) insertions will be made. \\
+\\
+This results in a worst case runtime of:
+\[
+    O(n \cdot log(n)) \text{.}
+\]
 \pagebreak
 
 \section*{Question 3}
 Describe the strategy to randomly choose the subtree for duplicate keys. Explain the changes and provide the updated algorithm.
 
 \vspace{1em} % Space for typing explanation
-\textbf{Changes made:} \underline{Add your explanation here.}
+\textbf{Changes made:} \underline{A random choice is made for the \texttt{goLeft} boolean flag.} If the flag is \texttt{True}, insert the duplicate key on the left side; otherwise, insert it on the right side.
 
 \begin{lstlisting}[language=Python, caption={TreeInsert with Randomized Insertion}]
 import random
@@ -116,6 +145,15 @@ def TreeInsert(root, key):
         root.right = TreeInsert(root.right, key)
     return root
 \end{lstlisting}
+\textbf{Worst Case Runtime Analysis:} \\
+The worst case runtime occurs when the key is always equal to the root's key. \\
+\\
+It is possible that the random choice is always the same, causing the insertion behaviour to continually add to the same branch of the tree, with an increasing size each time a duplicate key is inserted. \\
+\\
+This (see Part (a)) results in a worst case runtime of:
+\[
+    O(n^2) \text{.}
+\]
 
 \pagebreak
 
