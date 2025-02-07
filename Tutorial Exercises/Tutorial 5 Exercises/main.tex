@@ -1,0 +1,150 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{newunicodechar}
+\usepackage{EngReport}
+\usepackage{listings}
+\usepackage{cancel}
+\usepackage{comment}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{xcolor}  % Required for coloring in listings
+
+\graphicspath{{Images/}}
+\onehalfspacing
+\geometry{letterpaper, portrait, includeheadfoot=true, hmargin=1in, vmargin=1in}
+
+% Define custom colors
+\definecolor{myblue}{RGB}{0, 128, 255}
+\definecolor{mygreen}{RGB}{34, 139, 34}
+\definecolor{myorange}{RGB}{255, 140, 0}
+\definecolor{mygray}{RGB}{128, 128, 128}
+\definecolor{mypurple}{RGB}{148, 0, 211}
+\definecolor{myred}{RGB}{255, 69, 0}
+
+% Configure listings for Python with custom styles
+\lstset{
+    language=Python,             % Set language to Python
+    basicstyle=\ttfamily\small,  % Use a smaller monospace font
+    keywordstyle=\color{myblue}\bfseries,  % Keywords in blue and bold
+    commentstyle=\color{mygreen}\itshape,  % Comments in green and italic
+    stringstyle=\color{myorange},          % Strings in orange
+    numberstyle=\color{mygray},            % Line numbers in gray
+    identifierstyle=\color{mypurple},      % Functions and variables in purple
+    morekeywords={print, len, range},      % Define additional Python keywords
+    showstringspaces=false,                % Do not show spaces in strings
+    breaklines=true,                       % Enable line breaking
+    numbers=left,                          % Add line numbers to the left
+    numbersep=5pt,                         % Space between line numbers and code
+    frame=single,                          % Add a box around the code
+    rulecolor=\color{mygray},              % Frame color
+    moredelim=[is][\color{myred}]{@@}{@@}, % Custom inline LaTeX coloring
+}
+
+\begin{document}
+\renewcommand{\familydefault}{\rmdefault}
+
+\input{titlepage}
+\input{headerfooter}
+\pagebreak
+\normalsize
+
+\section*{Question 1}
+\textbf{(a) Checking for duplicate names in an unsorted list}
+
+To check if any two students have the same name, we can use a hash table where:
+- The keys are student names.
+- The values are counts of occurrences.
+
+\textbf{Algorithm:}
+1. Initialize an empty hash table.
+2. Iterate through the list:
+    - If the name is already in the hash table, return \texttt{True} (duplicate found).
+    - Otherwise, insert the name into the hash table.
+3. If no duplicates are found, return \texttt{False}.
+
+\textbf{Complexity:} \(O(n)\), assuming hash table operations are \(O(1)\).
+
+\textbf{Is a hash table the best choice?} Yes, because it provides an optimal \(O(n)\) solution compared to \(O(n^2)\) for nested loops.
+
+\textbf{(b) Sorting names using a hash table}
+
+A hash table does not inherently support sorting. Instead, a more suitable approach is:
+1. Insert names into a balanced BST (\(O(n \log n)\)).
+2. Use quicksort or mergesort (\(O(n \log n)\)).
+
+A hash table is \textbf{not} appropriate here because hashing does not maintain order.
+
+\pagebreak
+\section*{Question 2}
+\textbf{(a) Open Addressing Insertions}
+
+\textbf{Linear Probing:} \(h(k, i) = (h'(k) + i) \mod m\)
+
+\textbf{Quadratic Probing:} \(h(k, i) = (h'(k) + i^2) \mod m\)
+
+\textbf{Double Hashing:} \(h(k, i) = (h'(k) + i \cdot h''(k)) \mod m\)
+
+\textbf{(b) INSERT Pseudocode}
+\begin{lstlisting}
+INSERT(T, k):
+    i = 0
+    repeat:
+        j = h(k, i)
+        if T[j] is empty:
+            T[j] = k
+            return j
+        i = i + 1
+        if i == m:
+            return ERROR  // Table full
+\end{lstlisting}
+
+\textbf{(c) SEARCH Pseudocode}
+\begin{lstlisting}
+SEARCH(T, k):
+    i = 0
+    repeat:
+        j = h(k, i)
+        if T[j] == k:
+            return j
+        if T[j] is empty:
+            return NOT FOUND
+        i = i + 1
+        if i == m:
+            return NOT FOUND
+\end{lstlisting}
+
+\textbf{(d) DELETE Discussion}
+Simply replacing the deleted element with \texttt{NIL} disrupts probing sequences. A common solution is to use a special \texttt{DELETED} marker, which allows search and insertion to function correctly. However, excessive deletions degrade performance, necessitating periodic rehashing.
+
+\section*{Hash Table Insertion Algorithm}
+The following Python implementation demonstrates an insertion function for open addressing in a hash table:
+
+\begin{lstlisting}
+hashtable = [empty] * 11
+
+def INSERT(k):
+    for i in range(0, 12):
+        bucket = h(k, i)
+        if hashtable[bucket] is empty:
+            hashtable[bucket] = k
+            return
+    # Error case when the table is full
+    print("Error: Hash table is full")
+
+# Example usage
+h(k, i) = 0 + i
+INSERT(1)
+INSERT(2)
+DELETE(1)
+SEARCH(2)
+print(hashtable)  # Output: [DELETED, 2, NIL, NIL, NIL, NIL]
+\end{lstlisting}
+
+This code implements linear probing for collision resolution, where the function \texttt{h(k, i)} determines the next available slot in case of a collision.
+
+\end{document}
