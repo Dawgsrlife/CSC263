@@ -1,0 +1,158 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{newunicodechar}
+\usepackage{EngReport}
+\usepackage{listings}
+\usepackage{cancel}
+\usepackage{comment}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{xcolor}  % Required for coloring in listings
+
+\graphicspath{{Images/}}
+\onehalfspacing
+\geometry{letterpaper, portrait, includeheadfoot=true, hmargin=1in, vmargin=1in}
+
+% Define custom colors
+\definecolor{myblue}{RGB}{0, 128, 255}
+\definecolor{mygreen}{RGB}{34, 139, 34}
+\definecolor{myorange}{RGB}{255, 140, 0}
+\definecolor{mygray}{RGB}{128, 128, 128}
+\definecolor{mypurple}{RGB}{148, 0, 211}
+\definecolor{myred}{RGB}{255, 69, 0}
+
+% Configure listings for Python with custom styles
+\lstset{
+    language=Python,             % Set language to Python
+    basicstyle=\ttfamily\small,  % Use a smaller monospace font
+    keywordstyle=\color{myblue}\bfseries,  % Keywords in blue and bold
+    commentstyle=\color{mygreen}\itshape,  % Comments in green and italic
+    stringstyle=\color{myorange},          % Strings in orange
+    numberstyle=\color{mygray},            % Line numbers in gray
+    identifierstyle=\color{mypurple},      % Functions and variables in purple
+    morekeywords={print, len, range},      % Define additional Python keywords
+    showstringspaces=false,                % Do not show spaces in strings
+    breaklines=true,                       % Enable line breaking
+    numbers=left,                          % Add line numbers to the left
+    numbersep=5pt,                         % Space between line numbers and code
+    frame=single,                          % Add a box around the code
+    rulecolor=\color{mygray},              % Frame color
+    moredelim=[is][\color{myred}]{@@}{@@}, % Custom inline LaTeX coloring
+}
+
+\begin{document}
+\renewcommand{\familydefault}{\rmdefault}
+
+\input{titlepage}
+\input{headerfooter}
+\pagebreak
+\normalsize
+
+\section*{Question \#1: Correctness of Queue Implementation}
+First, convince yourself and your group that this is a correct implementation of the Queue ADT. Trace some examples.
+
+\begin{proof}
+\leavevmode\\
+To verify the correctness of the implementation, let's trace the operations step by step:
+
+\begin{itemize}
+    \item \textbf{Enqueue Operations}:
+    \begin{itemize}
+        \item When an element is enqueued, it is pushed onto stack \( S1 \).
+        \item If \( S1 \) has 12 or more elements and \( S2 \) is empty, all elements from \( S1 \) are popped and pushed onto \( S2 \). This ensures that the oldest elements are moved to \( S2 \), maintaining the FIFO order.
+    \end{itemize}
+
+    \item \textbf{Dequeue Operations}:
+    \begin{itemize}
+        \item When an element is dequeued, it is popped from \( S2 \).
+        \item If \( S2 \) is empty, all elements from \( S1 \) are moved to \( S2 \) before performing the pop operation. This ensures that the oldest element is always at the top of \( S2 \).
+    \end{itemize}
+\end{itemize}
+
+\noindent
+\textbf{Example}:
+\begin{itemize}
+    \item Enqueue \( 1, 2, 3 \): \( S1 = [1, 2, 3] \), \( S2 = [] \).
+    \item Dequeue: Move \( 1, 2, 3 \) to \( S2 \), then pop \( 1 \). \( S1 = [] \), \( S2 = [3, 2] \).
+    \item Enqueue \( 4 \): \( S1 = [4] \), \( S2 = [3, 2] \).
+    \item Dequeue: Pop \( 2 \). \( S1 = [4] \), \( S2 = [3] \).
+\end{itemize}
+
+This confirms that the implementation correctly simulates a queue.
+\end{proof}
+\pagebreak
+
+\section*{Question \#2: Aggregate Method for Amortized Cost}
+Consider the sequence of operations that consists of 50 Enqueue operations followed by 50 Dequeue operations. Use the aggregate method to compute the amortized cost per operation for this sequence.
+
+\begin{proof}
+\leavevmode\\
+\begin{itemize}
+    \item \textbf{Enqueue Operations}:
+    \begin{itemize}
+        \item Each Enqueue operation involves pushing an element onto \( S1 \), which costs 2 units of time.
+        \item If \( S1 \) reaches 12 elements and \( S2 \) is empty, all 12 elements are moved to \( S2 \). This involves 12 pops (3 units each) and 12 pushes (2 units each), totaling \( 12 \times 3 + 12 \times 2 = 60 \) units of time.
+        \item For 50 Enqueue operations, the worst-case cost occurs when \( S1 \) is full every 12 operations. This happens \( \lfloor 50 / 12 \rfloor = 4 \) times, with a total cost of \( 4 \times 60 = 240 \) units.
+        \item The remaining \( 50 - (4 \times 12) = 2 \) Enqueue operations cost \( 2 \times 2 = 4 \) units.
+        \item Total cost for Enqueue operations: \( 240 + 4 = 244 \) units.
+    \end{itemize}
+
+    \item \textbf{Dequeue Operations}:
+    \begin{itemize}
+        \item Each Dequeue operation involves popping an element from \( S2 \), which costs 3 units of time.
+        \item If \( S2 \) is empty, all elements from \( S1 \) are moved to \( S2 \). For 50 Dequeue operations, this happens once at the beginning, costing 60 units (as calculated above).
+        \item Total cost for Dequeue operations: \( 50 \times 3 + 60 = 210 \) units.
+    \end{itemize}
+
+    \item \textbf{Total Cost}:
+    \begin{itemize}
+        \item Total cost for 100 operations: \( 244 + 210 = 454 \) units.
+        \item Amortized cost per operation: \( 454 / 100 = 4.54 \) units.
+    \end{itemize}
+\end{itemize}
+
+Thus, the amortized cost per operation is \( 4.54 \) units.
+\end{proof}
+\pagebreak
+
+\section*{Question \#3: Accounting Method for Amortized Cost}
+Now consider any sequence of \( m \) Enqueue and Dequeue operations. Use the accounting method to derive an upper-bound on the amortized cost per operation.
+
+\begin{proof}
+\leavevmode\\
+\begin{itemize}
+    \item \textbf{Assign Costs}:
+    \begin{itemize}
+        \item Assign an amortized cost of 5 units to each Enqueue operation and 0 units to each Dequeue operation.
+        \item This ensures that each Enqueue operation pays for its own push (2 units) and contributes 3 units to cover future pops and moves.
+    \end{itemize}
+
+    \item \textbf{Invariant}:
+    \begin{itemize}
+        \item The 3 units contributed by each Enqueue operation are stored as "credit" to cover the cost of moving elements from \( S1 \) to \( S2 \) during Dequeue operations.
+    \end{itemize}
+
+    \item \textbf{Cost Analysis}:
+    \begin{itemize}
+        \item Each Enqueue operation costs 2 units, leaving 3 units as credit.
+        \item Each Dequeue operation costs 3 units, which is covered by the credit from previous Enqueue operations.
+        \item If \( S1 \) is full and \( S2 \) is empty, the cost of moving 12 elements is \( 60 \) units, which is covered by the \( 3 \times 12 = 36 \) units of credit from the 12 Enqueue operations.
+    \end{itemize}
+
+    \item \textbf{Upper Bound}:
+    \begin{itemize}
+        \item The total amortized cost for \( m \) operations is \( 5m \) units.
+        \item Thus, the amortized cost per operation is at most 5 units.
+    \end{itemize}
+\end{itemize}
+
+Therefore, the amortized cost per operation is \( O(1) \), with an upper bound of 5 units.
+\end{proof}
+\pagebreak
+
+\end{document}
