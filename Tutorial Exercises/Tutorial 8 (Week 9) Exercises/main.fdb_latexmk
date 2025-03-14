@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1741969181.32603 "c:/Users/33576/! UTM/! Second Year/Winter Term/CSC263-Winter-2025/Tutorial Exercises/Tutorial 8 (Week 9) Exercises/main.tex" "main.pdf" "main" 1741969182.41425 0
-  "c:/Users/33576/! UTM/! Second Year/Winter Term/CSC263-Winter-2025/Tutorial Exercises/Tutorial 8 (Week 9) Exercises/main.tex" 1741969177 6143 ff4a50f268a24d2e54ad2872dcadac1e ""
+["pdflatex"] 1741969254.01166 "c:/Users/33576/! UTM/! Second Year/Winter Term/CSC263-Winter-2025/Tutorial Exercises/Tutorial 8 (Week 9) Exercises/main.tex" "main.pdf" "main" 1741969255.05585 0
+  "c:/Users/33576/! UTM/! Second Year/Winter Term/CSC263-Winter-2025/Tutorial Exercises/Tutorial 8 (Week 9) Exercises/main.tex" 1741969253 6141 749a9cdee7ae9909461dea0fc560801d ""
   "c:/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1727285803 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "c:/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1727287667 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/jknappen/ec/tcrm1200.tfm" 1727286878 1536 74b7293ec3713bb7fdca8dd1bd1f469c ""
@@ -31,6 +31,7 @@
   "c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb" 1727196084 36741 0ee9e374ec3e30da87cdfb0ea3575226 ""
   "c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb" 1727196084 35752 024fb6c41858982481f6968b5fc26508 ""
   "c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb" 1727196084 32722 d7379af29a190c3f453aba36302ff5a9 ""
+  "c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb" 1727196084 32362 bc3f3eec7ab7d65fe700963d4017d32c ""
   "c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1727196084 32569 5e5ddc8df908dea60932f3c484a54c0d ""
   "c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb" 1727196084 31099 342ef5a582aacbd3346f3cf4579679fa ""
   "c:/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb" 1727196084 24252 1e4e051947e12dfb50fee0b7f4e26e3a ""
@@ -76,8 +77,9 @@
   "c:/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1727297209 5523052 a6c4264ca43d05e5adfe84e964c2ac4c ""
   "c:/texlive/2024/texmf-var/web2c/pdftex/pdflatex.fmt" 1727296253 3325960 5fac605b348f32104185a90287f47418 ""
   "c:/texlive/2024/texmf.cnf" 1727296015 713 e69b156964470283e0530f5060668171 ""
-  "main.aux" 1741969182 32 c81c40425fbb5e93b90fba65da0b5e61 "pdflatex"
-  "main.tex" 1741969177 6143 ff4a50f268a24d2e54ad2872dcadac1e ""
+  "main.aux" 1741969254 32 2d1df76398b3c48c6419a45a7331db2d "pdflatex"
+  "main.tex" 1741969253 6141 749a9cdee7ae9909461dea0fc560801d ""
+  "titlepage.tex" 1741969167 478 f45492986ec140ee2fb12f008f663f1f ""
   (generated)
   "main.aux"
   "main.log"
