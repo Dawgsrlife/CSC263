@@ -1,11 +1,6 @@
 \documentclass[12pt]{article}
 
 \usepackage[utf8]{inputenc}
-\usepackage{newunicodechar}
-\usepackage{EngReport}
-\usepackage{listings}
-\usepackage{cancel}
-\usepackage{comment}
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{amsmath}
@@ -13,93 +8,154 @@
 \usepackage{setspace}
 \usepackage{geometry}
 \usepackage{xcolor}
+\usepackage{listings}
+\usepackage{cancel}
+\usepackage{comment}
 
 \graphicspath{{Images/}}
 \onehalfspacing
 \geometry{letterpaper, portrait, includeheadfoot=true, hmargin=1in, vmargin=1in}
 
+% Define custom colors
+\definecolor{myblue}{RGB}{0, 128, 255}
+\definecolor{mygreen}{RGB}{34, 139, 34}
+\definecolor{myorange}{RGB}{255, 140, 0}
+\definecolor{mygray}{RGB}{128, 128, 128}
+\definecolor{mypurple}{RGB}{148, 0, 211}
+\definecolor{myred}{RGB}{255, 69, 0}
+
+% Configure listings for Python with custom styles
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{myblue}\bfseries,
+    commentstyle=\color{mygreen}\itshape,
+    stringstyle=\color{myorange},
+    numberstyle=\color{mygray},
+    identifierstyle=\color{mypurple},
+    showstringspaces=false,
+    breaklines=true,
+    numbers=left,
+    numbersep=5pt,
+    frame=single,
+    rulecolor=\color{mygray},
+    moredelim=[is][\color{myred}]{@@}{@@},
+}
+
 \begin{document}
 \renewcommand{\familydefault}{\rmdefault}
 
-\section*{Tutorial 9: Bipartite Graphs and Bug Gender Problem}
+\section*{CSC263H5 - Tutorial 9: Bipartite Graphs and Algorithms}
 
-\subsection*{1. Examples of Bipartite and Non-Bipartite Graphs}
-
-\textbf{Bipartite Graphs:}
+\subsection*{1. Bipartite Graph Examples}
 \begin{itemize}
-    \item A graph with vertices \{1, 2, 3, 4, 5, 6, 7\} and edges \{(1,4), (2,5), (3,6), (4,7), (5,1), (6,2), (7,3), (2,6), (3,7), (5,7)\}.
-    \item A graph representing a tree (any acyclic graph is bipartite).
+    \item \textbf{Example of a bipartite graph with at least 7 vertices and 10 edges:} A graph with vertex set \( V = \{1,2,3,4,5,6,7\} \) where edges form a bipartite structure such as:
+    \[
+    E = \{(1,4), (1,5), (2,6), (2,7), (3,5), (3,6), (4,7), (5,7), (6,4), (6,7)\}
+    \]
+    \item \textbf{Example of a non-bipartite graph with at least 7 vertices and no triangle:} A graph that contains an odd cycle but avoids triangles, such as a 7-cycle:
+    \[
+    E = \{(1,2), (2,3), (3,4), (4,5), (5,6), (6,7), (7,1)\}
+    \]
+    This structure ensures there are no complete subgraphs of three vertices, but still contains an odd-length cycle, making it non-bipartite.
 \end{itemize}
 
-\textbf{Non-Bipartite Graphs:}
-\begin{itemize}
-    \item A graph with vertices \{1, 2, 3, 4, 5, 6, 7\} and edges \{(1,2), (2,3), (3,4), (4,5), (5,6), (6,7), (7,1)\} (contains an odd-length cycle of 7).
-    \item A graph with at least 7 vertices and no triangle but containing an odd cycle, such as a cycle of length 5.
-\end{itemize}
-
-\subsection*{2. Modified Depth-First Search for Bipartiteness}
-
-We modify DFS to check if a graph is bipartite by coloring nodes alternately:
+\subsection*{2. Modified Depth-First Search Algorithm for Bipartiteness}
+The following Depth-First Search (DFS) algorithm determines whether an undirected graph is bipartite and assigns each vertex to one of two partitions.
 
 \begin{lstlisting}
-def is_bipartite(graph, start):
-    color = {}
-    stack = [(start, 1)]  # (node, color)
+def is_bipartite(graph, n):
+    side = [-1] * n  # -1 represents unvisited nodes
     
-    while stack:
-        node, c = stack.pop()
-        if node in color:
-            if color[node] != c:
+    def dfs(v, c):
+        side[v] = c  # Assign side[v] as c (0 or 1)
+        for neighbor in graph[v]:
+            if side[neighbor] == -1:
+                if not dfs(neighbor, 1 - c):  # Flip side assignment
+                    return False
+            elif side[neighbor] == side[v]:
                 return False
-        else:
-            color[node] = c
-            for neighbor in graph[node]:
-                stack.append((neighbor, 3 - c))  # Alternate color
-    
-    return True, color
+        return True
+
+    for v in range(n):
+        if side[v] == -1:
+            if not dfs(v, 0):
+                return False, side  # Graph is not bipartite
+    return True, side  # Graph is bipartite
 \end{lstlisting}
 
-\subsection*{3. Proof and Runtime Analysis}
-\textbf{Correctness:}
-If the graph is bipartite, then every node can be colored alternately. If an odd-length cycle exists, then some node will conflict with its expected color, making it non-bipartite.
+\textbf{Explanation:}
+\begin{itemize}
+    \item The algorithm initializes an array \texttt{side} where each vertex is marked as unvisited.
+    \item DFS is used to traverse the graph, assigning each vertex a value of 0 or 1.
+    \item If a neighboring vertex is already assigned and has the same value, the graph is not bipartite.
+\end{itemize}
 
-\textbf{Time Complexity:}
-Since we traverse all edges and vertices once, the runtime is \(O(V + E)\), which is the complexity of DFS.
+\subsection*{3. Proof and Complexity Analysis}
+\textbf{Correctness:}  
+A graph is bipartite if and only if no two adjacent nodes have the same assigned value during DFS traversal. The algorithm ensures this by assigning each visited node the opposite value of its parent.
 
-\subsection*{4. Proof of Bipartiteness Criterion}
-We prove that a graph is bipartite if and only if it has no odd cycles.
+\textbf{Time Complexity:}  
+DFS runs in \(O(V + E)\) time because:
+\begin{itemize}
+    \item Each vertex is visited once.
+    \item Each edge is checked at most twice (once from each endpoint).
+\end{itemize}
+Thus, the worst-case complexity is \(O(V + E)\), which is optimal for bipartiteness checking.
 
-\textbf{Forward Direction:} If a graph is bipartite, then every cycle must alternate between two colors, implying an even cycle length.
+\subsection*{4. Proof: A Graph is Bipartite if and only if it has no Odd-Length Cycles}
+\textbf{Proof Sketch:}
+\begin{itemize}
+    \item (\(\Rightarrow\)) If a graph is bipartite, it can be colored with two colors. Any cycle in the graph must alternate colors at each step, which implies the cycle length must be even.
+    \item (\(\Leftarrow\)) If a graph contains an odd-length cycle, it cannot be two-colored without two adjacent vertices sharing the same color. Thus, it is not bipartite.
+\end{itemize}
 
-\textbf{Backward Direction:} If no odd cycles exist, we can perform a BFS or DFS-based two-coloring scheme, ensuring bipartiteness.
-
-\subsection*{5. Bug Gender Problem: Bipartiteness Approach}
-
-We model the problem as checking whether the interaction graph is bipartite.
+\subsection*{5. Bug Gender Problem Algorithm}
+\textbf{Problem Interpretation:}  
+The problem reduces to checking whether the bug interaction graph is bipartite.
 
 \textbf{Algorithm:}
 \begin{lstlisting}
-def bug_interaction(N, interactions):
-    graph = {i: [] for i in range(1, N+1)}
-    for a, b in interactions:
-        graph[a].append(b)
-        graph[b].append(a)
+from collections import deque
+
+def bug_gender_check(N, interactions):
+    graph = [[] for _ in range(N)]
+    for u, v in interactions:
+        graph[u].append(v)
+        graph[v].append(u)
     
-    visited = {}
-    
-    def dfs(node, c):
-        if node in visited:
-            return visited[node] == c
-        visited[node] = c
-        return all(dfs(neighbor, 1 - c) for neighbor in graph[node])
-    
-    for bug in graph:
-        if bug not in visited:
-            if not dfs(bug, 0):
+    side = [-1] * N  # -1 means unvisited
+
+    def bfs(start):
+        queue = deque([start])
+        side[start] = 0  # Assign first gender
+        
+        while queue:
+            node = queue.popleft()
+            for neighbor in graph[node]:
+                if side[neighbor] == -1:
+                    side[neighbor] = 1 - side[node]  # Assign opposite gender
+                    queue.append(neighbor)
+                elif side[neighbor] == side[node]:
+                    return False  # Conflict detected
+        return True
+
+    for i in range(N):
+        if side[i] == -1:
+            if not bfs(i):
                 return "AMY IS WRONG"
+    
     return "AMY MIGHT BE RIGHT"
 \end{lstlisting}
 
-\textbf{Runtime Analysis:} Since the algorithm performs a DFS over all nodes and edges, it runs in \(O(N + K)\), where \(N\) is the number of bugs and \(K\) is the number of interactions.
+\textbf{Complexity Analysis:}
+\begin{itemize}
+    \item The algorithm uses BFS to check for bipartiteness, similar to the previous approach.
+    \item Each vertex is visited once, and each edge is checked at most twice.
+    \item Time complexity: \(O(N + K)\), where \(N\) is the number of bugs and \(K\) is the number of interactions.
+\end{itemize}
+
+\textbf{Conclusion:}  
+The problem is effectively solved by checking for odd-length cycles in an undirected graph. If an odd-length cycle exists, Amy's assumption is incorrect; otherwise, it remains possible.
 
 \end{document}
