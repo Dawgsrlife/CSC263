@@ -1,0 +1,218 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{newunicodechar}
+\usepackage{EngReport}
+\usepackage{listings}
+\usepackage{cancel}
+\usepackage{comment}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{xcolor}
+
+\graphicspath{{Images/}}
+\onehalfspacing
+\geometry{letterpaper, portrait, includeheadfoot=true, hmargin=1in, vmargin=1in}
+
+% Define custom colors
+\definecolor{myblue}{RGB}{0, 128, 255}
+\definecolor{mygreen}{RGB}{34, 139, 34}
+\definecolor{myorange}{RGB}{255, 140, 0}
+\definecolor{mygray}{RGB}{128, 128, 128}
+\definecolor{mypurple}{RGB}{148, 0, 211}
+\definecolor{myred}{RGB}{255, 69, 0}
+
+% Configure listings for Python with custom styles
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{myblue}\bfseries,
+    commentstyle=\color{mygreen}\itshape,
+    stringstyle=\color{myorange},
+    numberstyle=\color{mygray},
+    identifierstyle=\color{mypurple},
+    morekeywords={print, range, deque},
+    showstringspaces=false,
+    breaklines=true,
+    numbers=left,
+    numbersep=5pt,
+    frame=single,
+    rulecolor=\color{mygray},
+    moredelim=[is][\color{myred}]{@@}{@@},
+}
+
+\begin{document}
+\renewcommand{\familydefault}{\rmdefault}
+
+\section*{Tricky Elevator Problem: A Graph Theory Approach}
+
+\subsection*{Problem Description}
+Consider a building with \(N\) floors (numbered \(1,2,\ldots,N\)) and an elevator with two buttons:
+\begin{itemize}
+    \item \textbf{Up by \(U\)}: Moves the elevator up \(U\) floors (if possible).
+    \item \textbf{Down by \(D\)}: Moves the elevator down \(D\) floors (if possible).
+\end{itemize}
+Starting at floor \(X\), the objective is to reach floor \(Y\) using the minimum number of button presses. If the destination is unreachable, the output should be ``TAKE THE STAIRS!''.
+
+\subsection*{Graph Theoretic Model}
+We model the elevator system as a directed, unweighted graph \(G=(V,E)\) where:
+\begin{itemize}
+    \item \textbf{Vertices (V)}: Each floor \(i\) such that \(1 \leq i \leq N\) is a vertex.
+    \item \textbf{Edges (E)}: For each floor \(i\):
+    \begin{itemize}
+        \item There is an edge from \(i\) to \(i+U\) if \(i+U \leq N\) (corresponding to the ``Up'' button).
+        \item There is an edge from \(i\) to \(i-D\) if \(i-D \geq 1\) (corresponding to the ``Down'' button).
+    \end{itemize}
+\end{itemize}
+This abstraction allows us to interpret the problem as finding the shortest path from vertex \(X\) to vertex \(Y\).
+
+\subsection*{Breadth-First Search (BFS)}
+Since the graph is unweighted, the optimal solution is obtained by finding the shortest path via Breadth-First Search (BFS). As presented in the lecture, BFS is implemented by:
+\begin{itemize}
+    \item Marking each vertex with a color: white (unvisited), gray (discovered), or black (fully explored).
+    \item Maintaining a distance array \(d[v]\) which stores the number of moves from the source \(X\) to vertex \(v\).
+    \item Using a predecessor array \(\pi[v]\) to reconstruct the shortest path, if needed.
+\end{itemize}
+
+The lecture provided the following pseudocode for BFS:
+\begin{verbatim}
+BFS(G=(V,E), s):
+   for all v in V:
+      colour[v] ← white
+      d[v] \leftarrow \infty
+      \pi[v] \leftarrow NIL
+   colour[s] ← gray
+   d[s] ← 0
+   Enqueue(Q, s)
+   while Q is not empty:
+      u ← Dequeue(Q)
+      for each neighbour v of u:
+         if colour[v] = white:
+            colour[v] ← gray
+            d[v] ← d[u] + 1
+            \(\pi\)[v] ← u
+            Enqueue(Q, v)
+      colour[u] ← black
+\end{verbatim}
+
+\subsection*{Application to the Elevator Problem}
+In the context of our elevator problem:
+\begin{itemize}
+    \item The source vertex is \(s=X\) and the target is \(Y\).
+    \item The neighbors of a vertex (floor) \(i\) are:
+    \begin{itemize}
+        \item \(i+U\) (if \(i+U \leq N\))
+        \item \(i-D\) (if \(i-D \geq 1\))
+    \end{itemize}
+\end{itemize}
+By applying BFS starting from \(X\), the first time we encounter \(Y\) the value \(d[Y]\) is the minimum number of button presses required. If \(Y\) remains unreachable (i.e., \(d[Y]=\infty\)), then the solution is to ``TAKE THE STAIRS!''.
+
+\subsection*{Python Implementation}
+Below is a Python implementation of the solution using the BFS approach inspired by the lecture. The function \texttt{elevator} takes the number of floors \(N\), the starting floor \(X\), the destination floor \(Y\), and the values of \(U\) and \(D\) as input. It returns the minimum number of button presses required to reach the destination floor.
+
+\begin{lstlisting}
+from collections import deque
+
+def elevator(N, X, Y, U, D):
+    # If the starting floor is the destination.
+    if X == Y:
+        return 0
+    
+    # Initialize "colour" (visited), distance and queue.
+    # In our implementation, 'visited' acts as the colour marker.
+    visited = [False] * (N + 1)
+    distance = [float('inf')] * (N + 1)
+    
+    queue = deque([X])
+    visited[X] = True
+    distance[X] = 0
+    
+    while queue:
+        current = queue.popleft()
+        
+        # Explore the "Up" neighbour.
+        next_up = current + U
+        if next_up <= N and not visited[next_up]:
+            visited[next_up] = True
+            distance[next_up] = distance[current] + 1
+            if next_up == Y:
+                return distance[next_up]
+            queue.append(next_up)
+        
+        # Explore the "Down" neighbour.
+        next_down = current - D
+        if next_down >= 1 and not visited[next_down]:
+            visited[next_down] = True
+            distance[next_down] = distance[current] + 1
+            if next_down == Y:
+                return distance[next_down]
+            queue.append(next_down)
+    
+    return "TAKE THE STAIRS!"
+
+# Sample test cases:
+print(elevator(10, 1, 10, 2, 1))  # Expected output: 6
+print(elevator(10, 2, 3, 2, 2))   # Expected output: TAKE THE STAIRS!
+\end{lstlisting}
+
+\subsection*{Extension: Reconstructing the Sequence of Moves}
+If required to output the actual sequence of button presses, we can modify BFS to store the predecessor (using the \(\pi\) array from the lecture) and then reconstruct the path:
+
+\begin{lstlisting}
+def elevator_path(N, X, Y, U, D):
+    if X == Y:
+        return ["Already at destination."]
+    
+    visited = [False] * (N + 1)
+    distance = [float('inf')] * (N + 1)
+    predecessor = [None] * (N + 1)
+    
+    queue = deque([X])
+    visited[X] = True
+    distance[X] = 0
+    
+    while queue:
+        current = queue.popleft()
+        
+        next_up = current + U
+        if next_up <= N and not visited[next_up]:
+            visited[next_up] = True
+            distance[next_up] = distance[current] + 1
+            predecessor[next_up] = current
+            if next_up == Y:
+                break
+            queue.append(next_up)
+        
+        next_down = current - D
+        if next_down >= 1 and not visited[next_down]:
+            visited[next_down] = True
+            distance[next_down] = distance[current] + 1
+            predecessor[next_down] = current
+            if next_down == Y:
+                break
+            queue.append(next_down)
+    
+    if not visited[Y]:
+        return "TAKE THE STAIRS!"
+    
+    # Reconstruct the path from Y back to X.
+    path = []
+    node = Y
+    while node is not None:
+        path.append(node)
+        node = predecessor[node]
+    path.reverse()
+    return path
+
+# Example usage:
+print(elevator_path(10, 1, 10, 2, 1))
+\end{lstlisting}
+
+\subsection*{Conclusion}
+By modeling the elevator system as a graph with floors as vertices and valid moves as edges, and applying BFS (as detailed in the lecture, we can efficiently determine the minimum number of button presses required to reach the target floor. Moreover, by recording predecessors, we can reconstruct the sequence of moves, thus providing a comprehensive graph theory solution to the Tricky Elevator problem.
+
+\end{document}
