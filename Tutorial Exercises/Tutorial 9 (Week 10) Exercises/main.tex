@@ -1,0 +1,128 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{cancel}
+\usepackage{comment}
+
+\graphicspath{{Images/}}
+\onehalfspacing
+\geometry{letterpaper, portrait, includeheadfoot=true, hmargin=1in, vmargin=1in}
+
+\definecolor{myblue}{RGB}{0, 128, 255}
+\definecolor{mygreen}{RGB}{34, 139, 34}
+\definecolor{myorange}{RGB}{255, 140, 0}
+\definecolor{mygray}{RGB}{128, 128, 128}
+\definecolor{mypurple}{RGB}{148, 0, 211}
+\definecolor{myred}{RGB}{255, 69, 0}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{myblue}\bfseries,
+    commentstyle=\color{mygreen}\itshape,
+    stringstyle=\color{myorange},
+    numberstyle=\color{mygray},
+    identifierstyle=\color{mypurple},
+    showstringspaces=false,
+    breaklines=true,
+    numbers=left,
+    numbersep=5pt,
+    frame=single,
+    rulecolor=\color{mygray},
+    moredelim=[is][\color{myred}]{@@}{@@},
+}
+
+\begin{document}
+\renewcommand{\familydefault}{\rmdefault}
+
+\input{titlepage}
+
+\section*{CSC263H5 – Tutorial 10: Minimum Cycler and MST Uniqueness}
+
+\subsection*{1. Minimum Cycler Algorithm}
+
+\textbf{Problem:} Given a weighted connected undirected graph \( G = (V, E) \), find a set \( S \subseteq E \) of minimum total weight such that every cycle in \( G \) contains at least one edge in \( S \).
+
+\textbf{Hint:} The algorithm can be described in one short sentence.
+
+\subsubsection*{Algorithm:}
+
+Compute a \textbf{Maximum Weight Spanning Tree (MWST)} \( T \subseteq E \), and set \( S = E \setminus T \).
+
+\subsubsection*{Correctness:}
+\begin{itemize}
+    \item Every cycle in \( G \) must contain at least one edge not in any spanning tree.
+    \item Removing all non-tree edges eliminates all cycles, ensuring \( S \) covers all cycles.
+    \item To minimize the total weight of \( S \), maximize the weight of \( T \), since:
+    \[
+    \text{weight}(E) = \text{weight}(T) + \text{weight}(S)
+    \]
+    \item Thus, maximizing \( \text{weight}(T) \) minimizes \( \text{weight}(S) \), yielding a \textbf{Minimum Cycler}.
+\end{itemize}
+
+\subsubsection*{Runtime:}
+\begin{itemize}
+    \item Kruskal’s Algorithm (modified for MWST): \( O(m \log n) \)
+    \item Sorting edges: \( O(m \log n) \)
+    \item Union-Find: \( O(m \alpha(n)) \) where \( \alpha(n) \) is inverse Ackermann
+    \item Total: \( O(m \log n) \)
+\end{itemize}
+
+\newpage
+
+\subsection*{2. Uniqueness of MSTs}
+
+\subsubsection*{(a) Existence of Exactly 2 Distinct MSTs}
+
+\textbf{Answer:} Yes, such a graph exists.
+
+\textbf{Example:}  
+Graph with 5 vertices forming a cycle plus one diagonal:
+\[
+V = \{v_1, v_2, v_3, v_4, v_5\},\quad E = \{(v_1,v_2), (v_2,v_3), (v_3,v_4), (v_4,v_5), (v_5,v_1), (v_1,v_3)\}
+\]
+
+\textbf{Edge weights:}
+\[
+w(v_i,v_{i+1}) = 1\ (\text{mod }5), \quad w(v_1,v_3) = 2
+\]
+
+\textbf{Two MSTs:}
+\begin{itemize}
+    \item MST 1: exclude \( (v_5,v_1) \)
+    \item MST 2: exclude \( (v_2,v_3) \)
+\end{itemize}
+Both MSTs have total weight 4. No other spanning tree can omit the higher weight edge \( (v_1,v_3) \) and maintain minimum weight.
+
+\subsubsection*{(b) Unique Weights \( \Rightarrow \) Unique MST}
+
+\textbf{Proof:}
+Assume for contradiction \( T_1 \neq T_2 \) are two distinct MSTs.
+
+Let \( e \in T_1 \setminus T_2 \) be the minimum weight edge among all differences. Then in \( T_2 \cup \{e\} \), a cycle exists. Let \( e' \in T_2 \setminus T_1 \) be an edge in this cycle.
+
+Since weights are unique and \( w(e) < w(e') \), replacing \( e' \) with \( e \) in \( T_2 \) gives a lighter spanning tree – contradiction.
+
+\textbf{Conclusion:} \( T_1 = T_2 \). MST is unique.
+
+\subsubsection*{(c) Non-Unique Weights, Unique MST}
+
+\textbf{Answer:} Yes, possible.
+
+\textbf{Example:}  
+Graph: 5 vertices in a tree with 4 edges of weight 1, and one additional edge of weight 1 creating a cycle.
+
+\textbf{Reasoning:}
+Although weights are not unique, only one spanning tree avoids creating a cycle and has minimal total weight. No alternative tree can be formed due to graph structure.
+
+\textbf{Conclusion:} Duplicate weights \( \nRightarrow \) multiple MSTs. Uniqueness can be preserved structurally.
+
+\end{document}
