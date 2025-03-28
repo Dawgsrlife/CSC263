@@ -1,0 +1,156 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{cancel}
+\usepackage{comment}
+
+\graphicspath{{Images/}}
+\onehalfspacing
+\geometry{letterpaper, portrait, includeheadfoot=true, hmargin=1in, vmargin=1in}
+
+\definecolor{myblue}{RGB}{0, 128, 255}
+\definecolor{mygreen}{RGB}{34, 139, 34}
+\definecolor{myorange}{RGB}{255, 140, 0}
+\definecolor{mygray}{RGB}{128, 128, 128}
+\definecolor{mypurple}{RGB}{148, 0, 211}
+\definecolor{myred}{RGB}{255, 69, 0}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{myblue}\bfseries,
+    commentstyle=\color{mygreen}\itshape,
+    stringstyle=\color{myorange},
+    numberstyle=\color{mygray},
+    identifierstyle=\color{mypurple},
+    showstringspaces=false,
+    breaklines=true,
+    numbers=left,
+    numbersep=5pt,
+    frame=single,
+    rulecolor=\color{mygray},
+    moredelim=[is][\color{myred}]{@@}{@@},
+}
+
+\begin{document}
+\renewcommand{\familydefault}{\rmdefault}
+
+\input{titlepage}
+
+\section*{CSC263H5 – Tutorial 11: Disjoint Sets with Efficient PRINT Operation}
+
+\subsection*{Problem Statement}
+
+The goal is to augment the disjoint set data structure to efficiently implement the following operation:
+
+\textbf{PRINT(x):} Print all elements in \( S_x \) (the set containing \( x \)).
+
+The target is to achieve \( O(|S_x|) \) worst-case runtime for the \texttt{PRINT} operation, without affecting the usual \( O(\alpha(n)) \) amortized time for \texttt{MAKE-SET}, \texttt{FIND-SET}, and \texttt{UNION}.
+
+\subsection*{Data Structure Augmentation}
+
+Each set will be maintained as both:
+\begin{itemize}
+    \item A tree for the standard disjoint set operations (\texttt{parent}, \texttt{rank}).
+    \item A linked list that connects all elements of the set.
+\end{itemize}
+
+Each node will store:
+\[
+\text{parent}[x],\ \text{rank}[x],\ \text{next}[x]
+\]
+Each root node will additionally store:
+\[
+\text{tail}[x]
+\]
+
+The linked list will always start from the root of the set and will visit all elements exactly once through the \texttt{next} pointers.
+
+\subsection*{MAKE-SET(x)}
+
+\texttt{MAKE-SET} initializes the singleton set containing only \( x \) and creates a trivial linked list where \( x \) points to nothing.
+
+\begin{lstlisting}
+def MAKE-SET(x):
+    parent[x] = x
+    rank[x] = 0
+    next[x] = NIL   # x has no next node
+    tail[x] = x     # tail of the list is itself
+\end{lstlisting}
+
+\subsection*{FIND-SET(x)}
+
+The \texttt{FIND-SET} operation is the same as the classical disjoint set operation with path compression.
+
+\begin{lstlisting}
+def FIND-SET(x):
+    if parent[x] != x:
+        parent[x] = FIND-SET(parent[x])
+    return parent[x]
+\end{lstlisting}
+
+\subsection*{UNION(x, y)}
+
+\texttt{UNION} merges both the disjoint set trees and the linked lists. The smaller ranked tree is attached under the larger ranked tree, and the corresponding linked lists are merged by connecting the tail of one list to the head of the other.
+
+\begin{lstlisting}
+def UNION(w, z):
+    x = FIND-SET(w)
+    y = FIND-SET(z)
+    if x == y:
+        return
+    
+    if rank[x] < rank[y]:
+        parent[x] = y
+        tail[y].next = x
+        tail[y] = tail[x]
+    else:
+        parent[y] = x
+        tail[x].next = y
+        tail[x] = tail[y]
+        if rank[x] == rank[y]:
+            rank[x] += 1
+\end{lstlisting}
+
+\subsection*{PRINT(x)}
+
+\texttt{PRINT} outputs all elements in the set containing \( x \) by traversing the linked list starting at the root.
+
+\begin{lstlisting}
+def PRINT(x):
+    r = FIND-SET(x)
+    u = r
+    while u != NIL:
+        print(u)
+        u = next[u]
+\end{lstlisting}
+
+\subsection*{Explanation of Operations}
+
+\begin{itemize}
+    \item \textbf{MAKE-SET}: Creates a singleton set where the linked list contains only \( x \).
+    \item \textbf{FIND-SET}: Finds the representative of the set containing \( x \) using path compression.
+    \item \textbf{UNION}: Merges both the trees and their linked lists efficiently. Only one pointer adjustment is needed to connect the two linked lists, and the \texttt{tail} is updated.
+    \item \textbf{PRINT}: Prints all members of the set in \( O(|S_x|) \) time by simply traversing the linked list.
+\end{itemize}
+
+\subsection*{Runtime Analysis}
+
+\begin{itemize}
+    \item \textbf{MAKE-SET}, \textbf{FIND-SET}, \textbf{UNION}: Each runs in \( O(\alpha(n)) \) amortized time using union by rank and path compression.
+    \item \textbf{PRINT}: Runs in \( O(|S_x|) \) time since it visits each element in the set exactly once.
+\end{itemize}
+
+\subsection*{Correctness}
+
+The linked list always contains all elements of the set. Every union merges two lists correctly by appending one to the other, and no elements are lost or duplicated. The set structure used for \texttt{FIND-SET} and \texttt{UNION} remains valid and efficient due to the unchanged use of union by rank and path compression. The \texttt{PRINT} operation traverses the linked list directly and outputs the exact elements in the set.
+
+\end{document}
